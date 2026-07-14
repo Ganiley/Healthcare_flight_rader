@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ganiley Health is an offline-first health platform for Sub-Saharan Africa with protocols, disease diary, AI triage, country comparisons, and cached resource libraries." />
+  <title>Ganiley Health Platform</title>
+  <style>
+    :root {
+      --ink: #12201c;
+      --muted: #5d6f68;
+      --soft: #eef7f3;
+      --soft-2: #f8fbfa;
+      --line: #dbe8e3;
+      --green: #0f7a5b;
+      --green-2: #075943;
+      --mint: #dff5eb;
+      --blue: #145c8a;
+      --amber: #b7791f;
+      --red: #b42318;
+      --white: #ffffff;
+      --shadow: 0 18px 60px rgba(15, 54, 43, 0.12);
+      --shadow-sm: 0 10px 28px rgba(15, 54, 43, 0.09);
+      --radius: 24px;
+      --radius-sm: 16px;
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15, 122, 91, 0.13), transparent 35rem),
+        linear-gradient(180deg, #f5fbf8 0%, #ffffff 42%, #f6faf8 100%);
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .wrap {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topline {
+      background: #0a3328;
+      color: #e8fff7;
+      font-size: 0.86rem;
+    }
+
+    .topline .wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 0;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #16a34a;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+    }
+
+    .dot.offline {
+      background: #f59e0b;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.22);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(255, 255, 255, 0.82);
+      border-bottom: 1px solid rgba(219, 232, 227, 0.85);
+    }
+
+    nav.wrap {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      font-size: 1.2rem;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.2), transparent),
+        linear-gradient(135deg, #0f7a5b, #123b6d);
+      display: grid;
+      place-items: center;
+      color: white;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mark::before {
+      content: "";
+      width: 22px;
+      height: 7px;
+      background: white;
+      border-radius: 20px;
+      position: absolute;
+    }
+
+    .mark::after {
+      content: "";
+      width: 7px;
+      height: 22px;
+      background: white;
+      border-radius: 20px;
+      position: absolute;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .navlinks a {
+      color: #29453d;
+      font-weight: 700;
+      font-size: 0.92rem;
+      padding: 10px 12px;
+      border-radius: 999px;
+    }
+
+    .navlinks a:hover {
+      background: var(--soft);
+      color: var(--green-2);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .menu-btn {
+      display: none;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 12px;
+      padding: 9px 12px;
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .btn {
+      border: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 12px 16px;
+      min-height: 46px;
+      border-radius: 999px;
+      font-weight: 850;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      text-align: center;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green), #0b5f9b);
+      color: white;
+      box-shadow: 0 14px 32px rgba(15, 122, 91, 0.22);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--green-2);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-ghost {
+      background: var(--soft);
+      color: var(--green-2);
+      border: 1px solid transparent;
+    }
+
+    .hero {
+      padding: 56px 0 30px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--green-2);
+      background: rgba(223, 245, 235, 0.9);
+      border: 1px solid rgba(15, 122, 91, 0.15);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 850;
+      font-size: 0.9rem;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.08;
+      letter-spacing: -0.045em;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(2.45rem, 7vw, 5.75rem);
+      max-width: 920px;
+      margin-top: 18px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+      max-width: 700px;
+      margin: 22px 0 0;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .trust-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .trust {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .trust strong {
+      display: block;
+      font-size: 1.35rem;
+      color: var(--green-2);
+      letter-spacing: -0.04em;
+    }
+
+    .trust span {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .phone-shell {
+      max-width: 430px;
+      margin-left: auto;
+      background: #0b1f1a;
+      border-radius: 42px;
+      padding: 14px;
+      box-shadow: 0 30px 90px rgba(4, 35, 26, 0.25);
+      transform: rotate(1.2deg);
+    }
+
+    .phone {
+      background: linear-gradient(180deg, #f7fbf9, #edf7f2);
+      border-radius: 32px;
+      overflow: hidden;
+      min-height: 620px;
+      border: 1px solid rgba(255,255,255,.25);
+    }
+
+    .phone-top {
+      background: white;
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .phone-title {
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 0.76rem;
+      font-weight: 900;
+      background: var(--mint);
+      color: var(--green-2);
+      white-space: nowrap;
+    }
+
+    .phone-body {
+      padding: 16px;
+    }
+
+    .app-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 15px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 22px rgba(15, 54, 43, 0.06);
+    }
+
+    .app-card h3 {
+      font-size: 1.04rem;
+      margin-bottom: 6px;
+    }
+
+    .app-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mini-action {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px;
+      min-height: 84px;
+    }
+
+    .mini-action b {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.9rem;
+    }
+
+    .sync-bar {
+      margin-top: 12px;
+      background: #e6f2ed;
+      border-radius: 999px;
+      height: 10px;
+      overflow: hidden;
+    }
+
+    .sync-fill {
+      height: 100%;
+      width: 72%;
+      background: linear-gradient(90deg, var(--green), #0b5f9b);
+      border-radius: inherit;
+      animation: pulseWidth 4s ease-in-out infinite;
+    }
+
+    @keyframes pulseWidth {
+      0%, 100% { width: 62%; }
+      50% { width: 84%; }
+    }
+
+    section {
+      padding: 72px 0;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      max-width: 780px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      max-width: 480px;
+      margin: 12px 0 0;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -60px auto;
+      width: 140px;
+      height: 140px;
+      border-radius: 999px;
+      background: rgba(15, 122, 91, 0.07);
+      pointer-events: none;
+    }
+
+    .feature {
+      min-height: 290px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--mint), #e8f1ff);
+      color: var(--green-2);
+      font-size: 1.55rem;
+      margin-bottom: 18px;
+      border: 1px solid rgba(15, 122, 91, 0.12);
+    }
+
+    .feature h3 {
+      font-size: 1.22rem;
+      margin-bottom: 10px;
+    }
+
+    .feature .headline {
+      color: var(--green-2);
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .feature p {
+      color: var(--muted);
+      margin: 0 0 18px;
+    }
+
+    .feature a {
+      margin-top: auto;
+      font-weight: 900;
+      color: var(--green-2);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .module-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--muted);
+      padding: 10px 13px;
+      border-radius: 999px;
+      font-weight: 900;
+    }
+
+    .tab.active {
+      color: white;
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .protocol-layout {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      gap: 18px;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-weight: 850;
+      color: #29453d;
+      font-size: 0.92rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 12px 13px;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(15, 122, 91, 0.55);
+      box-shadow: 0 0 0 4px rgba(15, 122, 91, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 92px;
+    }
+
+    .protocol-card {
+      background: #0b3328;
+      color: white;
+      border-radius: var(--radius);
+      padding: 22px;
+      min-height: 100%;
+      box-shadow: var(--shadow);
+    }
+
+    .protocol-card p, .protocol-card li {
+      color: rgba(255,255,255,0.78);
+    }
+
+    .protocol-card ul {
+      padding-left: 20px;
+    }
+
+    .warning {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #7c2d12;
+      border-radius: 16px;
+      padding: 12px;
+      font-weight: 750;
+    }
+
+    .danger {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #9f1239;
+      border-radius: 16px;
+      padding: 12px;
+      font-weight: 750;
+    }
+
+    .success {
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      color: #065f46;
+      border-radius: 16px;
+      padding: 12px;
+      font-weight: 750;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .day, .day-name {
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      font-weight: 850;
+      font-size: 0.86rem;
+    }
+
+    .day-name {
+      aspect-ratio: auto;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .day {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      position: relative;
+    }
+
+    .day.has-log {
+      background: var(--mint);
+      border-color: rgba(15, 122, 91, 0.35);
+      color: var(--green-2);
+    }
+
+    .day.today {
+      box-shadow: inset 0 0 0 2px var(--green);
+    }
+
+    .comparator {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .metric {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .metric:last-child {
+      border-bottom: 0;
+    }
+
+    .metric-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 900;
+    }
+
+    .bar {
+      height: 9px;
+      background: #e8f1ed;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--blue));
+      border-radius: inherit;
+    }
+
+    .transfer-box {
+      margin-top: 18px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .map-box {
+      min-height: 360px;
+      background:
+        linear-gradient(135deg, rgba(15, 122, 91, 0.1), rgba(20, 92, 138, 0.12)),
+        repeating-linear-gradient(45deg, rgba(15, 122, 91, 0.12) 0 1px, transparent 1px 18px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 22px;
+    }
+
+    .map-pin {
+      width: 72px;
+      height: 72px;
+      border-radius: 999px 999px 999px 10px;
+      transform: rotate(-45deg);
+      background: var(--green);
+      display: grid;
+      place-items: center;
+      margin: 0 auto 22px;
+      box-shadow: 0 18px 45px rgba(15, 122, 91, 0.28);
+    }
+
+    .map-pin span {
+      transform: rotate(45deg);
+      color: white;
+      font-size: 1.6rem;
+    }
+
+    .chat {
+      background: #f6faf8;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .chat-head {
+      padding: 16px;
+      background: #0b3328;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .chat-body {
+      height: 320px;
+      overflow: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg {
+      max-width: 84%;
+      padding: 11px 13px;
+      border-radius: 18px;
+      font-size: 0.94rem;
+    }
+
+    .bot {
+      background: white;
+      border: 1px solid var(--line);
+      align-self: flex-start;
+    }
+
+    .user {
+      background: var(--green);
+      color: white;
+      align-self: flex-end;
+    }
+
+    .chat-input {
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      gap: 8px;
+      background: white;
+    }
+
+    .library-tools {
+      display: grid;
+      grid-template-columns: 1fr 220px 180px;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .library-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .resource {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .resource h3 {
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+    }
+
+    .resource p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 9px;
+    }
+
+    .tag {
+      font-size: 0.74rem;
+      font-weight: 900;
+      color: var(--green-2);
+      background: var(--mint);
+      padding: 5px 8px;
+      border-radius: 999px;
+    }
+
+    .architecture {
+      background: #092a22;
+      color: white;
+      border-radius: 32px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .architecture p {
+      color: rgba(255,255,255,0.75);
+    }
+
+    .step {
+      border-left: 2px solid rgba(255,255,255,0.18);
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .step::before {
+      content: "";
+      position: absolute;
+      left: -7px;
+      top: 4px;
+      width: 12px;
+      height: 12px;
+      background: #7dd3fc;
+      border-radius: 999px;
+    }
+
+    .admin-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .admin-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    footer {
+      padding: 42px 0;
+      background: #071f19;
+      color: white;
+    }
+
+    footer p, footer a {
+      color: rgba(255,255,255,0.72);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.4fr repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .small {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .hide {
+      display: none !important;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid, .protocol-layout, .comparator, .grid-4, .grid-3, .grid-2, .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .trust-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .phone-shell {
+        margin: 0 auto;
+        transform: none;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .navlinks {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        top: 118px;
+        background: white;
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+        border-radius: 22px;
+        padding: 10px;
+        flex-direction: column;
+        align-items: stretch;
+        display: none;
+      }
+
+      .navlinks.open {
+        display: flex;
+      }
+
+      .navlinks a {
+        border-radius: 14px;
+      }
+
+      .menu-btn {
+        display: inline-flex;
+      }
+
+      .desktop-only {
+        display: none;
+      }
+
+      .library-tools {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .wrap {
+        width: min(100% - 22px, var(--max));
+      }
+
+      nav.wrap {
+        min-height: 66px;
+      }
+
+      .brand span:last-child {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 34px;
+      }
+
+      .hero-actions .btn, .nav-actions .btn {
+        width: 100%;
+      }
+
+      .nav-actions {
+        flex: 1;
+        justify-content: flex-end;
+      }
+
+      .trust-row {
+        grid-template-columns: 1fr;
+      }
+
+      .phone {
+        min-height: auto;
+      }
+
+      section {
+        padding: 50px 0;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .resource {
+        grid-template-columns: 1fr;
+      }
+
+      .chat-input {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .topline .wrap {
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topline">
+    <div class="wrap">
+      <div class="status" aria-live="polite"><span id="netDot" class="dot"></span><span id="netText">Online: sync enabled</span></div>
+      <div><strong id="queueCount">0</strong> offline entries waiting to sync · SMS-friendly flows · optimized for 2G/3G</div>
+    </div>
+  </div>
+
+  <header>
+    <nav class="wrap" aria-label="Primary navigation">
+      <a href="#home" class="brand" aria-label="Ganiley Health home">
+        <span class="mark" aria-hidden="true"></span>
+        <span>Ganiley Health</span>
+      </a>
+
+      <div id="navLinks" class="navlinks">
+        <a href="#modules">Modules</a>
+        <a href="#triage">AI triage</a>
+        <a href="#nearest">Nearest centre</a>
+        <a href="#library">Library</a>
+        <a href="#architecture">Delivery</a>
+      </div>
+
+      <div class="nav-actions">
+        <a class="btn btn-primary desktop-only" href="#download">Get the app</a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">Menu</button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <span class="eyebrow">Offline-first healthcare delivery & analysis</span>
+          <h1>Independent analysis. Practical clinical workflows. Built for intermittent connectivity.</h1>
+          <p class="lead">Ganiley Health unifies a low-data website and Android/iOS app for Sub-Saharan Africa. Nutrition, public health, and cross-country learning are treated as core health system operations — not charity add-ons.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#modules">Explore platform</a>
+            <a class="btn btn-secondary" href="#nearest">Directions to nearest health centre</a>
+            <a class="btn btn-ghost" href="#triage">Try text triage</a>
+          </div>
+
+          <div class="trust-row" aria-label="Platform principles">
+            <div class="trust"><strong>Offline</strong><span>Protocols, diary, inputs</span></div>
+            <div class="trust"><strong>Low data</strong><span>2G/3G, SMS-style UX</span></div>
+            <div class="trust"><strong>No ranking</strong><span>Country comparisons</span></div>
+            <div class="trust"><strong>Evidence</strong><span>Clinic manager focus</span></div>
+          </div>
+        </div>
+
+        <div class="phone-shell" aria-label="Mobile app preview">
+          <div class="phone">
+            <div class="phone-top">
+              <div>
+                <div class="phone-title">Ganiley Field App</div>
+                <div class="small">Cached protocols ready</div>
+              </div>
+              <span class="pill" id="phoneStatus">Online</span>
+            </div>
+            <div class="phone-body">
+              <div class="app-card">
+                <h3>Today’s operational actions</h3>
+                <p>Log symptoms, check referral thresholds, route questions, and sync when signal returns.</p>
+                <div class="app-grid">
+                  <a class="mini-action" href="#modules"><span>📋</span><b>Treatment lines</b></a>
+                  <a class="mini-action" href="#diary"><span>📅</span><b>Disease diary</b></a>
+                  <a class="mini-action" href="#triage"><span>💬</span><b>AI triage</b></a>
+                  <a class="mini-action" href="#nearest"><span>📍</span><b>Nearest centre</b></a>
+                </div>
+              </div>
+              <div class="app-card">
+                <h3>Sync status</h3>
+                <p><span id="syncMessage">All local changes saved. Auto-sync will run when online.</span></p>
+                <div class="sync-bar"><div class="sync-fill"></div></div>
+              </div>
+              <div class="app-card">
+                <h3>SMS reminder flow</h3>
+                <p>“Take dose 2 at 18:00. Reply 1 if taken, 2 if missed, 3 if side effect.”</p>
+              </div>
+              <div class="warning">AI guidance is routing support. It does not replace clinicians or emergency care.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="homepage-sections">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Homepage knowledge routes</span>
+            <h2>Eight evidence-based sections, each connected to the filterable offline library.</h2>
+          </div>
+          <p>Minimal imagery, readable text, and practical links for clinical, operational, and policy users.</p>
+        </div>
+
+        <div class="grid-4">
+          <article class="card feature">
+            <div class="icon" aria-hidden="true">🍽️🏥</div>
+            <p class="headline">Why prevention is healthcare operations</p>
+            <h3>Nutrition & Public Health</h3>
+            <p>Food policy affects costs, admissions, bed turnover, and staff workload. Prevention belongs inside hospital operations.</p>
+            <a href="#library" data-filter="nutrition">Read more →</a>
+          </article>
+
+          <article class="card feature">
+            <div class="icon" aria-hidden="true">🗺️⇄</div>
+            <p class="headline">What systems teach each other</p>
+            <h3>Country Comparisons</h3>
+            <p>No islands, no rankings. Compare failure and success to identify what is transferable under constraint.</p>
+            <a href="#library" data-filter="comparisons">Read more →</a>
+          </article>
+
+          <article class="card feature">
+            <div class="icon" aria-hidden="true">🛠️</div>
+            <p class="headline">Tools that work, not just tools that shine</p>
+            <h3>Technology & Innovation</h3>
+            <p>Real adoption, failures, measurable impact, and low-bandwidth design. No hype, just evidence.</p>
+            <a href="#library" data-filter="technology">Read more →</a>
+          </article>
+
+          <article class="card feature">
+            <div class="icon" aria-hidden="true">⚙️</div>
+            <p class="headline">How financing, governance, supply chains actually run</p>
+            <h3>Systems & Policy</h3>
+            <p>Policy is stockouts, nurse ratios, lab delays, financing cycles, and daily accountability.</p>
+            <a href="#library" data-filter="policy">Read more →</a>
+          </article>
+
+          <article class="card feature">
+            <div class="icon" aria-hidden="true">🛏️</div>
+            <p class="headline">Bed management, staffing, daily reality</p>
+            <h3>Operations</h3>
+            <p>Ward-level efficiency, waiting time reduction, referral flow, and low-cost fixes that can scale.</p>
+            <a href="#library" data-filter="operations">Read more →</a>
+          </article>
+
+          <article class="card feature">
+            <div class="icon" aria-hidden="true">📋</div>
+            <p class="headline">Evidence-based, context-adapted clinical workflows</p>
+            <h3>Protocols & Practice</h3>
+            <p>Downloadable and offline, with rural/urban adaptation notes and harmonization guidance.</p>
+            <a href="#library" data-filter="protocols">Read more →</a>
+          </article>
+
+          <article class="card feature">
+            <div class="icon" aria-hidden="true">📑</div>
+            <p class="headline">Evidence you can act on</p>
+            <h3>Research & Reports</h3>
+            <p>No paywalls. Every report includes “So what for a clinic manager?” plus policy briefs and case studies.</p>
+            <a href="#library" data-filter="research">Read more →</a>
+          </article>
+
+          <article class="card feature">
+            <div class="icon" aria-hidden="true">◎</div>
+            <p class="headline">Independent analysis. Nordic-rooted.</p>
+            <h3>About Us</h3>
+            <p>Focused on how healthcare really operates — in SSA and beyond. Globally curious, without arrogance.</p>
+            <a href="#about" data-filter="about">Read more →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="modules">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Core modules for web and app</span>
+            <h2>Treatment lines, disease diary, country comparator, and offline resource library.</h2>
+          </div>
+          <p>Designed for low-cost Android, intermittent power, cached content, and auto-sync when connectivity returns.</p>
+        </div>
+
+        <div class="module-tabs" role="tablist">
+          <button class="tab active" data-panel="protocolPanel">A. Treatment lines & diary</button>
+          <button class="tab" data-panel="comparePanel">B. Country comparisons</button>
+          <button class="tab" data-panel="offlinePanel">C. Offline resource library</button>
+        </div>
+
+        <div id="protocolPanel" class="panel active">
+          <div class="protocol-layout">
+            <div class="card">
+              <div class="form-row">
+                <label for="diseaseSelect">Select disease</label>
+                <select id="diseaseSelect">
+                  <option value="malaria">Malaria</option>
+                  <option value="diarrhoea">Acute diarrhoea</option>
+                  <option value="pneumonia">Pneumonia symptoms</option>
+                  <option value="undernutrition">Child undernutrition</option>
+                </select>
+              </div>
+              <div id="protocolOutput" class="protocol-card"></div>
+            </div>
+
+            <div id="diary" class="card">
+              <div class="section-head" style="margin-bottom: 12px;">
+                <div>
+                  <span class="eyebrow">Offline disease diary</span>
+                  <h2 style="font-size: 2rem;">Log symptoms and medicines locally.</h2>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <form id="diaryForm">
+                  <div class="form-row">
+                    <label for="logDate">Date</label>
+                    <input id="logDate" type="date" required />
+                  </div>
+                  <div class="form-row">
+                    <label for="logSymptoms">Symptoms</label>
+                    <textarea id="logSymptoms" placeholder="Example: fever, cough, vomiting, appetite, stool frequency" required></textarea>
+                  </div>
+                  <div class="form-row">
+                    <label for="logMeds">Medicines / actions taken</label>
+                    <textarea id="logMeds" placeholder="Example: ORS, ACT dose, paracetamol, referral advice"></textarea>
+                  </div>
+                  <button class="btn btn-primary" type="submit">Save offline entry</button>
+                  <button class="btn btn-secondary" type="button" id="exportDiary" style="margin-top: 8px;">Export clinic history</button>
+                </form>
+
+                <div>
+                  <div class="success">Entries are saved in this device first. Sync queue updates automatically.</div>
+                  <div id="calendar" class="calendar" aria-label="Disease diary calendar"></div>
+                  <div id="latestLog" class="small" style="margin-top: 12px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="comparePanel" class="panel">
+          <div class="card">
+            <div class="grid-2">
+              <div class="form-row">
+                <label for="countryA">Country A</label>
+                <select id="countryA"></select>
+              </div>
+              <div class="form-row">
+                <label for="countryB">Country B</label>
+                <select id="countryB"></select>
+              </div>
+            </div>
+
+            <div id="comparisonOutput" class="comparator"></div>
+            <div class="transfer-box">
+              <strong>What’s transferable?</strong>
+              <p id="transferText" style="margin-bottom: 0;">Select two systems to compare operational lessons, not rankings.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="offlinePanel" class="panel">
+          <div class="grid-3">
+            <div class="card feature">
+              <div class="icon">📦</div>
+              <h3>Cached protocol packs</h3>
+              <p>Core clinical guidance, referral thresholds, and nutrition workflows are cached and searchable without internet.</p>
+            </div>
+            <div class="card feature">
+              <div class="icon">🧭</div>
+              <h3>Cached maps</h3>
+              <p>OSM/Google Maps links online; cached OSM tiles and facility lists in-app for nearest health centre lookup offline.</p>
+            </div>
+            <div class="card feature">
+              <div class="icon">🔁</div>
+              <h3>Sync queue</h3>
+              <p>Local diary entries, reminders, and form submissions queue on device and auto-sync when online.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="triage">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Low-bandwidth AI triage</span>
+            <h2>Text-based symptom routing that is explicit about its limits.</h2>
+          </div>
+          <p>The checker is designed for low data use and routes queries to self-care guidance, clinic review, urgent referral, or clinician follow-up.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="chat" aria-label="AI triage chat">
+            <div class="chat-head">
+              <strong>Ganiley Triage Assistant</strong>
+              <span class="pill">Text-only</span>
+            </div>
+            <div id="chatBody" class="chat-body">
+              <div class="msg bot">Describe the main symptom, age, duration, and any danger signs. I can help route the query, but I do not replace clinicians.</div>
+              <div class="msg bot">Examples: “child fever 2 days vomiting”, “pregnant severe headache”, “diarrhoea blood in stool”.</div>
+            </div>
+            <form id="chatForm" class="chat-input">
+              <input id="chatInput" type="text" placeholder="Type symptoms..." autocomplete="off" required />
+              <button class="btn btn-primary" type="submit">Send</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3 style="font-size: 1.8rem;">Routing principles</h3>
+            <div class="danger" style="margin-top: 14px;">Emergency signs: difficulty breathing, unconsciousness, seizures, severe dehydration, heavy bleeding, chest pain, pregnancy danger signs, infant fever.</div>
+            <div class="warning" style="margin-top: 12px;">This tool provides triage routing and question prompts. It is not a diagnosis and does not replace a clinician.</div>
+            <div class="success" style="margin-top: 12px;">Low data pattern: short text prompts, saved conversations, SMS-style alerts, and clinician escalation when online.</div>
+            <button class="btn btn-secondary" id="saveTriage" style="margin-top: 16px;">Save triage conversation offline</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="nearest">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Maps and facility access</span>
+            <h2>One-tap directions to the nearest health centre.</h2>
+          </div>
+          <p>Uses geolocation and online OSM directions where available. Mobile app stores cached tiles and facility metadata for offline use.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="map-box">
+            <div>
+              <div class="map-pin"><span>＋</span></div>
+              <h3 style="font-size: 1.8rem;">Nearest centre lookup</h3>
+              <p id="locationText" style="color: var(--muted); max-width: 520px;">Tap the button to use device location. If offline, the app uses cached facility lists and map tiles from the last sync.</p>
+              <div class="hero-actions" style="justify-content: center;">
+                <button class="btn btn-primary" id="findCentre">Find nearest centre</button>
+                <a class="btn btn-secondary" id="osmLink" target="_blank" rel="noopener" href="https://www.openstreetmap.org/search?query=hospital">Open OSM</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="font-size: 1.8rem;">Offline map pattern</h3>
+            <div class="admin-list" style="margin-top: 14px;">
+              <div class="admin-item"><span>Facility registry cached by district</span><span class="tag">Offline</span></div>
+              <div class="admin-item"><span>OSM tiles compressed by priority area</span><span class="tag">Cached</span></div>
+              <div class="admin-item"><span>Directions online via OSM/Google Maps link</span><span class="tag">Online</span></div>
+              <div class="admin-item"><span>Last-known position used when GPS unavailable</span><span class="tag">Low power</span></div>
+            </div>
+            <p class="small" style="margin-top: 14px;">Production deployment connects to Google Maps or OSM routing APIs, with offline tile bundles distributed through the app update/cache mechanism.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="library">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Filterable offline resource library</span>
+            <h2>Protocols, briefs, case studies, and operational tools without paywalls.</h2>
+          </div>
+          <p>Every item is designed for download, compression, cache, and practical clinic use.</p>
+        </div>
+
+        <div class="card">
+          <div class="library-tools">
+            <input id="searchLibrary" type="search" placeholder="Search protocols, nutrition, operations..." />
+            <select id="categoryLibrary">
+              <option value="all">All categories</option>
+              <option value="nutrition">Nutrition & Public Health</option>
+              <option value="comparisons">Country Comparisons</option>
+              <option value="technology">Technology & Innovation</option>
+              <option value="policy">Systems & Policy</option>
+              <option value="operations">Operations</option>
+              <option value="protocols">Protocols & Practice</option>
+              <option value="research">Research & Reports</option>
+            </select>
+            <button class="btn btn-primary" id="cacheLibrary">Cache selected</button>
+          </div>
+          <div id="libraryList" class="library-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="download">
+      <div class="wrap">
+        <div class="grid-2">
+          <div class="card">
+            <span class="eyebrow">App download</span>
+            <h2 style="font-size: clamp(2rem, 4vw, 3.2rem); margin-top: 12px;">Offline-first Android and iOS app.</h2>
+            <p class="lead">Built for low-cost Android, intermittent connectivity, local-first diaries, cached protocols, SMS-style prompts, and auto-sync.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#" onclick="event.preventDefault(); alert('Android APK / Play Store link placeholder for production release.');">Download Android</a>
+              <a class="btn btn-secondary" href="#" onclick="event.preventDefault(); alert('iOS App Store / TestFlight link placeholder for production release.');">Download iOS</a>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">SMS-friendly fintech patterns</span>
+            <h3 style="font-size: 1.8rem; margin-top: 12px;">Auth, reminders, and alerts modeled on familiar transaction flows.</h3>
+            <div class="form-row" style="margin-top: 16px;">
+              <label for="phoneNumber">Phone number for reminder demo</label>
+              <input id="phoneNumber" type="tel" placeholder="+233..." />
+            </div>
+            <div class="form-row">
+              <label for="reminderType">Reminder type</label>
+              <select id="reminderType">
+                <option>Medication dose</option>
+                <option>Clinic appointment</option>
+                <option>Nutrition follow-up</option>
+                <option>Stockout alert</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="createReminder">Create offline reminder</button>
+            <p id="reminderOutput" class="small" style="margin-top: 12px;"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <div class="wrap">
+        <div class="architecture">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow" style="background: rgba(255,255,255,0.12); color: white; border-color: rgba(255,255,255,0.18);">Unified delivery architecture</span>
+              <h2 style="font-size: clamp(2rem, 4vw, 3.4rem); margin-top: 14px;">Website, app, backend sync, maps, AI triage, and admin protocol updates.</h2>
+            </div>
+            <p>Production design assumes 2G/3G, intermittent power, low-end devices, compressed assets, and local-first data.</p>
+          </div>
+
+          <div class="grid-3">
+            <div class="step">
+              <h3>1. Offline app core</h3>
+              <p>SQLite/local storage for diaries, protocols, facility lists, cached map tiles, and pending sync actions.</p>
+            </div>
+            <div class="step">
+              <h3>2. Unified backend</h3>
+              <p>Conflict-aware sync API for diary exports, protocol versions, reminders, analytics, and facility updates.</p>
+            </div>
+            <div class="step">
+              <h3>3. Admin panel</h3>
+              <p>Clinical editors update protocols, set version numbers, mark urgent changes, and push cache updates.</p>
+            </div>
+            <div class="step">
+              <h3>4. Lightweight triage</h3>
+              <p>Text-first symptom checker with rule-based safety routing and optional clinician escalation.</p>
+            </div>
+            <div class="step">
+              <h3>5. Cached maps</h3>
+              <p>OSM/Google integration online; offline tile bundles and facility coordinates for rural areas.</p>
+            </div>
+            <div class="step">
+              <h3>6. Cross-country learning</h3>
+              <p>Comparisons frame transferable operations, not rankings. SSA ↔ SSA and SSA ↔ Nordic supported.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Admin panel preview</span>
+            <h2>Protocol updates that push into offline caches.</h2>
+          </div>
+          <p>Clinical governance, versioning, review status, and low-bandwidth distribution are part of the product design.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3 style="font-size: 1.7rem;">Protocol publishing queue</h3>
+            <div class="admin-list" style="margin-top: 14px;">
+              <div class="admin-item"><span>Malaria referral thresholds v2.4</span><span class="tag">Ready</span></div>
+              <div class="admin-item"><span>Acute diarrhoea ORS workflow v1.9</span><span class="tag">Review</span></div>
+              <div class="admin-item"><span>Nutrition screening MUAC notes v3.1</span><span class="tag">Urgent</span></div>
+              <div class="admin-item"><span>Pneumonia danger signs v2.2</span><span class="tag">Draft</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="font-size: 1.7rem;">Push update demo</h3>
+            <p class="small">Create a simulated cache update for field devices. In production this is delivered through the sync backend.</p>
+            <div class="form-row">
+              <label for="adminTitle">Update title</label>
+              <input id="adminTitle" placeholder="Example: Revised referral threshold" />
+            </div>
+            <div class="form-row">
+              <label for="adminNote">Update note</label>
+              <textarea id="adminNote" placeholder="Short operational note for clinicians and clinic managers"></textarea>
+            </div>
+            <button class="btn btn-primary" id="pushUpdate">Push to offline cache</button>
+            <p id="adminOutput" class="small" style="margin-top: 12px;"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="wrap">
+        <div class="card" style="background: linear-gradient(135deg, #ffffff, #edf8f3);">
+          <span class="eyebrow">About Ganiley Health</span>
+          <h2 style="font-size: clamp(2rem, 4vw, 3.4rem); margin-top: 14px;">Independent analysis. Nordic-rooted. Focused on how healthcare really operates — in SSA and beyond.</h2>
+          <p class="lead">Ganiley Health studies healthcare delivery as a practical system: nutrition, bed management, financing, workforce, supply chains, technology adoption, and cross-country learning. The platform avoids hype, savior narratives, and academic jargon. It asks what can work under real constraints, what failed, and what a clinic manager can do next.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-grid">
+      <div>
+        <a href="#home" class="brand" style="color: white;">
+          <span class="mark"></span>
+          <span>Ganiley Health</span>
+        </a>
+        <p>Offline-first healthcare delivery, public health operations, nutrition, and comparative health system learning.</p>
+      </div>
+      <div>
+        <strong>Platform</strong>
+        <p><a href="#modules">Treatment lines</a><br><a href="#triage">AI triage</a><br><a href="#nearest">Maps</a></p>
+      </div>
+      <div>
+        <strong>Knowledge</strong>
+        <p><a href="#library">Library</a><br><a href="#homepage-sections">Sections</a><br><a href="#admin">Admin</a></p>
+      </div>
+      <div>
+        <strong>Principles</strong>
+        <p>Evidence-based<br>Low data<br>No rankings<br>No hype</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const protocols = {
+      malaria: {
+        title: "Malaria — evidence-based workflow",
+        body: [
+          "Confirm fever history and local testing availability.",
+          "Assess danger signs: repeated vomiting, altered consciousness, convulsions, severe anaemia, respiratory distress.",
+          "Use locally approved ACT protocol when uncomplicated and referral signs are absent.",
+          "Record dose timing, vomiting after dose, fever trend, and follow-up."
+        ],
+        refer: "Urgent referral if danger signs, infant under 2 months, pregnancy with severe symptoms, inability to drink, or deterioration."
+      },
+      diarrhoea: {
+        title: "Acute diarrhoea — dehydration-first workflow",
+        body: [
+          "Classify dehydration: alertness, thirst, eyes, skin pinch, urine output.",
+          "Begin ORS immediately when able to drink. Continue feeding and breastfeeding.",
+          "Zinc per local guidance for children. Avoid unnecessary antibiotics unless indicated.",
+          "Log stool frequency, blood, vomiting, fluid intake, and urine."
+        ],
+        refer: "Urgent referral for severe dehydration, lethargy, blood in stool, persistent vomiting, infant risk, or suspected cholera outbreak."
+      },
+      pneumonia: {
+        title: "Pneumonia symptoms — respiratory risk workflow",
+        body: [
+          "Check age, cough duration, respiratory rate, chest indrawing, oxygen saturation where available.",
+          "Look for danger signs: inability to feed, cyanosis, grunting, severe distress, lethargy.",
+          "Use local antibiotic protocol only when classification indicates.",
+          "Log breathing rate, fever, feeding, cough, and medicines."
+        ],
+        refer: "Urgent referral for chest indrawing, hypoxia, cyanosis, inability to feed, severe distress, or infant under 2 months."
+      },
+      undernutrition: {
+        title: "Child undernutrition — screening and operations",
+        body: [
+          "Screen MUAC, weight-for-height where available, bilateral oedema, appetite, and illness.",
+          "Connect nutrition assessment to infection risk, bed use, recovery time, and follow-up workload.",
+          "Use local therapeutic feeding and referral pathways.",
+          "Log MUAC, appetite, oedema, fever, diarrhoea, and follow-up date."
+        ],
+        refer: "Urgent referral for oedema, failed appetite test, severe wasting with illness, dehydration, or altered consciousness."
+      }
+    };
+
+    const countries = {
+      Ghana: { region: "SSA", bed: 58, nutrition: 54, ai: 42, spend: 46, lesson: "Transferable lessons include CHPS-style primary care reach, mobile money familiarity, and district-level operational learning." },
+      Kenya: { region: "SSA", bed: 61, nutrition: 50, ai: 55, spend: 48, lesson: "Useful transfer areas include digital payment adoption, community health strategy, and pragmatic health tech pilots." },
+      Rwanda: { region: "SSA", bed: 67, nutrition: 57, ai: 49, spend: 53, lesson: "Transferable areas include governance discipline, community insurance experience, and protocol standardization." },
+      Nigeria: { region: "SSA", bed: 44, nutrition: 43, ai: 45, spend: 38, lesson: "Transferable lessons often come from scale, private-sector delivery, logistics constraints, and state-by-state adaptation." },
+      Sweden: { region: "Nordic", bed: 72, nutrition: 82, ai: 66, spend: 86, lesson: "Transferable principles include long-term financing, primary care continuity, and data governance; direct copying may fail under different constraints." },
+      Finland: { region: "Nordic", bed: 70, nutrition: 84, ai: 69, spend: 84, lesson: "Transferable principles include prevention investment, registry use, and municipal coordination, adapted carefully to local capacity." }
+    };
+
+    const resources = [
+      { title: "Prevention as hospital operations", cat: "nutrition", desc: "How food policy, undernutrition, and prevention influence bed turnover and facility costs.", tags: ["nutrition", "operations", "3-page brief"] },
+      { title: "SSA ↔ Nordic comparison guide", cat: "comparisons", desc: "A non-ranking framework for identifying transferable lessons across different constraints.", tags: ["comparator", "policy", "no rankings"] },
+      { title: "AI adoption without hype", cat: "technology", desc: "Checklist for measuring real adoption, workflow fit, and failure modes in low-bandwidth settings.", tags: ["AI", "low data", "evaluation"] },
+      { title: "Stockout-to-delay pathway", cat: "policy", desc: "How financing, procurement, and governance show up as waiting time, nurse workload, and referrals.", tags: ["supply chain", "governance"] },
+      { title: "Ward bed flow tool", cat: "operations", desc: "Low-cost practices for bed management, discharge planning, and queue visibility.", tags: ["beds", "staffing", "wait times"] },
+      { title: "Malaria referral thresholds", cat: "protocols", desc: "Cached clinical workflow with danger signs, rural/urban notes, and diary prompts.", tags: ["protocol", "offline", "referral"] },
+      { title: "Acute diarrhoea ORS protocol", cat: "protocols", desc: "Dehydration classification, ORS workflow, zinc notes, and red-flag referral triggers.", tags: ["protocol", "child health"] },
+      { title: "Clinic manager evidence briefs", cat: "research", desc: "Case studies with a clear 'So what for a clinic manager?' section.", tags: ["research", "no paywall"] },
+      { title: "About Ganiley methodology", cat: "research", desc: "Independent, Nordic-rooted, globally curious analysis focused on real operations.", tags: ["about", "methods"] }
+    ];
+
+    let queue = Number(localStorage.getItem("ganileyQueue") || "0");
+    let diary = JSON.parse(localStorage.getItem("ganileyDiary") || "[]");
+    let chatHistory = JSON.parse(localStorage.getItem("ganileyChat") || "[]");
+
+    const $ = (id) => document.getElementById(id);
+
+    function updateNetwork() {
+      const online = navigator.onLine;
+      $("netDot").classList.toggle("offline", !online);
+      $("netText").textContent = online ? "Online: sync enabled" : "Offline: saving locally";
+      $("phoneStatus").textContent = online ? "Online" : "Offline";
+      $("syncMessage").textContent = online
+        ? "All local changes saved. Auto-sync will run now when entries are queued."
+        : "Offline mode active. Protocols, diary, maps cache, and library remain available.";
+      if (online && queue > 0) {
+        setTimeout(() => {
+          queue = 0;
+          localStorage.setItem("ganileyQueue", queue);
+          updateQueue();
+        }, 900);
+      }
+    }
+
+    function updateQueue() {
+      $("queueCount").textContent = queue;
+    }
+
+    function addQueue(count = 1) {
+      queue += count;
+      localStorage.setItem("ganileyQueue", queue);
+      updateQueue();
+      updateNetwork();
+    }
+
+    function renderProtocol() {
+      const key = $("diseaseSelect").value;
+      const p = protocols[key];
+      $("protocolOutput").innerHTML = `
+        <h3>${p.title}</h3>
+        <p>Context-adapted protocol summary for offline use. Confirm with local guidelines and clinician judgment.</p>
+        <ul>${p.body.map(item => `<li>${item}</li>`).join("")}</ul>
+        <div class="danger">${p.refer}</div>
+      `;
+    }
+
+    function initComparator() {
+      const keys = Object.keys(countries);
+      $("countryA").innerHTML = keys.map(k => `<option>${k}</option>`).join("");
+      $("countryB").innerHTML = keys.map(k => `<option>${k}</option>`).join("");
+      $("countryA").value = "Ghana";
+      $("countryB").value = "Sweden";
+      renderComparison();
+    }
+
+    function countryCard(name) {
+      const c = countries[name];
+      const metricNames = [
+        ["bed", "Bed turnover readiness"],
+        ["nutrition", "Nutrition/public health integration"],
+        ["ai", "AI adoption maturity"],
+        ["spend", "Primary care spend stability"]
+      ];
+      return `
+        <div class="card">
+          <span class="tag">${c.region}</span>
+          <h3 style="font-size:1.7rem; margin-top:10px;">${name}</h3>
+          ${metricNames.map(([key, label]) => `
+            <div class="metric">
+              <div class="metric-top"><span>${label}</span><span>${c[key]}/100</span></div>
+              <div class="bar"><span style="width:${c[key]}%"></span></div>
+            </div>
+          `).join("")}
+          <p class="small">${c.lesson}</p>
+        </div>
+      `;
+    }
+
+    function renderComparison() {
+      const a = $("countryA").value;
+      const b = $("countryB").value;
+      $("comparisonOutput").innerHTML = countryCard(a) + countryCard(b);
+      $("transferText").textContent = `${a} and ${b} should be compared by operating conditions, financing constraints, workforce capacity, and implementation discipline. The question is not who ranks higher; it is which practices can be adapted without ignoring context.`;
+    }
+
+    function renderLibrary() {
+      const search = $("searchLibrary").value.toLowerCase();
+      const cat = $("categoryLibrary").value;
+      const filtered = resources.filter(r => {
+        const matchesCat = cat === "all" || r.cat === cat;
+        const text = `${r.title} ${r.desc} ${r.tags.join(" ")} ${r.cat}`.toLowerCase();
+        return matchesCat && text.includes(search);
+      });
+
+      $("libraryList").innerHTML = filtered.length ? filtered.map(r => `
+        <article class="resource">
+          <div>
+            <h3>${r.title}</h3>
+            <p>${r.desc}</p>
+            <div class="tag-row">${r.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+          </div>
+          <button class="btn btn-secondary" onclick="cacheItem('${r.title.replace(/'/g, "\\'")}')">Cache</button>
+        </article>
+      `).join("") : `<div class="warning">No matching resources found.</div>`;
+    }
+
+    window.cacheItem = function(title) {
+      const cached = JSON.parse(localStorage.getItem("ganileyCachedResources") || "[]");
+      if (!cached.includes(title)) cached.push(title);
+      localStorage.setItem("ganileyCachedResources", JSON.stringify(cached));
+      addQueue(1);
+      alert(`Cached for offline use: ${title}`);
+    };
+
+    function renderCalendar() {
+      const cal = $("calendar");
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const first = new Date(year, month, 1);
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const start = first.getDay();
+      const names = ["S", "M", "T", "W", "T", "F", "S"];
+      let html = names.map(n => `<div class="day-name">${n}</div>`).join("");
+      for (let i = 0; i < start; i++) html += `<div></div>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const has = diary.some(x => x.date === iso);
+        const today = d === now.getDate();
+        html += `<button class="day ${has ? "has-log" : ""} ${today ? "today" : ""}" data-date="${iso}" title="${has ? "Diary entry saved" : "No entry"}">${d}</button>`;
+      }
+      cal.innerHTML = html;
+      document.querySelectorAll(".day[data-date]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const logs = diary.filter(x => x.date === btn.dataset.date);
+          $("latestLog").innerHTML = logs.length
+            ? `<strong>${btn.dataset.date}</strong><br>${logs.map(l => `Symptoms: ${l.symptoms}<br>Medicines/actions: ${l.meds || "None recorded"}`).join("<hr>")}`
+            : `<strong>${btn.dataset.date}</strong><br>No diary entry saved.`;
+        });
+      });
+
+      const latest = diary[diary.length - 1];
+      $("latestLog").innerHTML = latest
+        ? `<strong>Latest entry: ${latest.date}</strong><br>Symptoms: ${latest.symptoms}<br>Medicines/actions: ${latest.meds || "None recorded"}`
+        : "No diary entries yet.";
+    }
+
+    function triageResponse(text) {
+      const t = text.toLowerCase();
+      const danger = ["unconscious", "seizure", "convulsion", "difficulty breathing", "chest pain", "heavy bleeding", "blue", "cyanosis", "severe dehydration", "not drinking", "stiff neck"];
+      const pregnancy = ["pregnant", "pregnancy"];
+      const infant = ["newborn", "infant", "baby under 2", "under 2 months"];
+      if (danger.some(w => t.includes(w))) {
+        return "Urgent referral recommended now. Danger signs were mentioned. Seek emergency clinical care or the nearest facility. This is routing support, not diagnosis.";
+      }
+      if (pregnancy.some(w => t.includes(w)) && (t.includes("headache") || t.includes("bleeding") || t.includes("swelling") || t.includes("fever"))) {
+        return "Pregnancy danger sign possible. Please contact a clinician or facility urgently, especially with bleeding, severe headache, swelling, fever, or reduced fetal movement.";
+      }
+      if (infant.some(w => t.includes(w)) && t.includes("fever")) {
+        return "Infant fever can become serious. Same-day clinical assessment is recommended.";
+      }
+      if (t.includes("blood") && (t.includes("stool") || t.includes("diarr"))) {
+        return "Blood in stool needs clinical review. Encourage fluids if able, and seek facility assessment promptly.";
+      }
+      if (t.includes("fever") || t.includes("malaria")) {
+        return "Fever route: check duration, test availability, vomiting, convulsions, pregnancy, infant age, and ability to drink. Review malaria protocol and seek care if danger signs appear.";
+      }
+      if (t.includes("diarr") || t.includes("vomit")) {
+        return "Diarrhoea/vomiting route: assess dehydration, give ORS if able to drink, continue feeding, and seek care for lethargy, blood, persistent vomiting, or reduced urine.";
+      }
+      if (t.includes("cough") || t.includes("breath")) {
+        return "Respiratory route: check fast breathing, chest indrawing, fever, feeding, and oxygen if available. Urgent care for severe distress or inability to feed.";
+      }
+      return "I can route this better with age, duration, main symptom, pregnancy status if relevant, and danger signs. If severe or worsening, seek clinical care.";
+    }
+
+    function addChatMessage(text, who) {
+      const div = document.createElement("div");
+      div.className = `msg ${who}`;
+      div.textContent = text;
+      $("chatBody").appendChild(div);
+      $("chatBody").scrollTop = $("chatBody").scrollHeight;
+    }
+
+    function setReadMoreFilters() {
+      document.querySelectorAll("[data-filter]").forEach(link => {
+        link.addEventListener("click", () => {
+          const filter = link.dataset.filter;
+          if ($( "categoryLibrary" ) && resources.some(r => r.cat === filter)) {
+            $("categoryLibrary").value = filter;
+            setTimeout(renderLibrary, 50);
+          }
+        });
+      });
+    }
+
+    function initTabs() {
+      document.querySelectorAll(".tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+          document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+          tab.classList.add("active");
+          $(tab.dataset.panel).classList.add("active");
+        });
+      });
+    }
+
+    function initEvents() {
+      $("menuBtn").addEventListener("click", () => $("navLinks").classList.toggle("open"));
+      document.querySelectorAll(".navlinks a").forEach(a => a.addEventListener("click", () => $("navLinks").classList.remove("open")));
+
+      $("diseaseSelect").addEventListener("change", renderProtocol);
+      $("countryA").addEventListener("change", renderComparison);
+      $("countryB").addEventListener("change", renderComparison);
+      $("searchLibrary").addEventListener("input", renderLibrary);
+      $("categoryLibrary").addEventListener("change", renderLibrary);
+
+      $("diaryForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        diary.push({
+          date: $("logDate").value,
+          symptoms: $("logSymptoms").value.trim(),
+          meds: $("logMeds").value.trim(),
+          created: new Date().toISOString()
+        });
+        localStorage.setItem("ganileyDiary", JSON.stringify(diary));
+        $("logSymptoms").value = "";
+        $("logMeds").value = "";
+        addQueue(1);
+        renderCalendar();
+      });
+
+      $("exportDiary").addEventListener("click", () => {
+        const content = diary.length ? diary.map(d => `${d.date}\nSymptoms: ${d.symptoms}\nMedicines/actions: ${d.meds || "None"}\n`).join("\n---\n") : "No diary entries.";
+        const blob = new Blob([content], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ganiley-disease-diary.txt";
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      $("chatForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const text = $("chatInput").value.trim();
+        if (!text) return;
+        addChatMessage(text, "user");
+        chatHistory.push({ who: "user", text, time: new Date().toISOString() });
+        const response = triageResponse(text);
+        setTimeout(() => {
+          addChatMessage(response, "bot");
+          chatHistory.push({ who: "bot", text: response, time: new Date().toISOString() });
+          localStorage.setItem("ganileyChat", JSON.stringify(chatHistory));
+        }, 350);
+        $("chatInput").value = "";
+      });
+
+      $("saveTriage").addEventListener("click", () => {
+        localStorage.setItem("ganileyChat", JSON.stringify(chatHistory));
+        addQueue(1);
+        alert("Triage conversation saved offline.");
+      });
+
+      $("findCentre").addEventListener("click", () => {
+        if (!navigator.geolocation) {
+          $("locationText").textContent = "Geolocation is not available on this device. Use cached facility list in the mobile app.";
+          return;
+        }
+        $("locationText").textContent = "Requesting device location...";
+        navigator.geolocation.getCurrentPosition(pos => {
+          const { latitude, longitude } = pos.coords;
+          $("locationText").textContent = `Location found: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}. Opening nearby health facility search.`;
+          $("osmLink").href = `https://www.openstreetmap.org/search?query=hospital#map=14/${latitude}/${longitude}`;
+          window.open($("osmLink").href, "_blank", "noopener");
+        }, () => {
+          $("locationText").textContent = "Location permission unavailable. In the app, last-known position and cached facility lists can still be used offline.";
+        }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 });
+      });
+
+      $("cacheLibrary").addEventListener("click", () => {
+        const cat = $("categoryLibrary").value;
+        const selected = resources.filter(r => cat === "all" || r.cat === cat).map(r => r.title);
+        localStorage.setItem("ganileyCachedResources", JSON.stringify(selected));
+        addQueue(1);
+        alert(`${selected.length} resource(s) marked for offline cache.`);
+      });
+
+      $("createReminder").addEventListener("click", () => {
+        const phone = $("phoneNumber").value.trim() || "local device";
+        const type = $("reminderType").value;
+        $("reminderOutput").textContent = `Offline reminder created for ${phone}: ${type}. SMS sync will run when online.`;
+        addQueue(1);
+      });
+
+      $("pushUpdate").addEventListener("click", () => {
+        const title = $("adminTitle").value.trim() || "Protocol update";
+        const note = $("adminNote").value.trim() || "Update queued for offline cache.";
+        const updates = JSON.parse(localStorage.getItem("ganileyAdminUpdates") || "[]");
+        updates.push({ title, note, time: new Date().toISOString() });
+        localStorage.setItem("ganileyAdminUpdates", JSON.stringify(updates));
+        $("adminOutput").textContent = `Pushed to simulated offline cache: ${title}`;
+        $("adminTitle").value = "";
+        $("adminNote").value = "";
+        addQueue(1);
+      });
+
+      window.addEventListener("online", updateNetwork);
+      window.addEventListener("offline", updateNetwork);
+    }
+
+    function initDates() {
+      const today = new Date().toISOString().slice(0, 10);
+      $("logDate").value = today;
+    }
+
+    function boot() {
+      initDates();
+      renderProtocol();
+      initComparator();
+      renderLibrary();
+      renderCalendar();
+      initTabs();
+      initEvents();
+      setReadMoreFilters();
+      updateQueue();
+      updateNetwork();
+
+      if ("caches" in window) {
+        caches.open("ganiley-static-v1").then(cache => {
+          try { cache.add(location.href); } catch (e) {}
+        });
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>
